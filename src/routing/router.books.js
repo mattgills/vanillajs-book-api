@@ -12,7 +12,7 @@ router.get('/', async (req, res, next) => {
             book.authors = convertAuthorsStringToArray(book.authors);
         });
         
-        res.body = { data: books };
+        res.locals.body = { data: books };
         next();
     } catch(error) {
         res.status(500).send(error);
@@ -28,7 +28,7 @@ router.get('/:id', async (req, res, next) => {
             // Convert book authors string to array of authors
             book.authors = convertAuthorsStringToArray(book.authors);
 
-            res.body = { data: book };
+            res.locals.body = { data: book };
             next();
         } else {
             res.status(404).send();
@@ -87,7 +87,7 @@ router.get('/:id/readings', async (req, res, next) => {
         // Retrieve single book from database
         const readings = await Reading.findAll({ where: { bookId: req.params.id } });
 
-        res.body = { data: readings };
+        res.locals.body = { data: readings };
         next();
     } catch(error) {
         res.status(500).send(error)

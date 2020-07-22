@@ -7,7 +7,7 @@ router.get('/', async (req, res, next) => {
         // Retrieve books from database
         let sessions = await Session.findAll();
         
-        res.body = { data: sessions };
+        res.locals.body = { data: sessions };
         next();
     } catch(error) {
         res.status(500).send('oops something went wrong')
@@ -20,7 +20,7 @@ router.get('/:id', async (req, res, next) => {
         const session = await Session.findOne({ where: { id: req.params.id } });
 
         if (session) {
-            res.body = { data: session };
+            res.locals.body = { data: session };
         next();
         } else {
             res.status(404).send();

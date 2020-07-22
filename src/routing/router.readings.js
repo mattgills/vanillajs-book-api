@@ -7,7 +7,7 @@ router.get('/', async (req, res, next) => {
         // Retrieve books from database
         let readings = await Reading.findAll();
         
-        res.body = { data: readings };
+        res.locals.body = { data: readings };
         next();
     } catch(error) {
         res.status(500).send('oops something went wrong')
@@ -33,7 +33,7 @@ router.get('/books', async (req, res, next) => {
             book.authors = convertAuthorsStringToArray(book.authors);
         });
 
-        res.body = { data: books };
+        res.locals.body = { data: books };
         next();
     } catch(error) {
         console.error(error)
@@ -47,7 +47,7 @@ router.get('/:id([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-
         const reading = await Reading.findOne({ where: { id: req.params.id } });
 
         if (reading) {
-            res.body = { data: reading };
+            res.locals.body = { data: reading };
             next();
         } else {
             res.status(404).send();
@@ -102,7 +102,7 @@ router.get('/:id/sessions', async (req, res, next) => {
         // Retrieve single book from database
         const sessions = await Session.findAll({ where: { readingId: req.params.id } });
 
-        res.body = { data: sessions };
+        res.locals.body = { data: sessions };
         next();
     } catch(error) {
         res.status(500).send(error)

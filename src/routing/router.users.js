@@ -12,7 +12,7 @@ router.get('/', async (req, res, next) => {
             user.password = undefined;
         })
 
-        res.body = { data: users };
+        res.locals.body = { data: users };
         next();
     } catch(error) {
         res.status(500).send('oops something went wrong')
@@ -28,7 +28,7 @@ router.get('/:id', async (req, res, next) => {
             // Remove user password
             user.password = undefined;
 
-            res.body = { data: user };
+            res.locals.body = { data: user };
             next();
         } else {
             res.status(404).send();

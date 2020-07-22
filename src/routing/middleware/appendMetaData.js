@@ -1,8 +1,8 @@
 module.exports = function(req, res, next) {
-    res.body.metadata = {
+    res.locals.body.metadata = {
         language: 'JavaScript',
         framework: 'Express with Vanilla JavaScript'
     }
 
-    res.send(res.body);
+    res.send(res.locals.body);
 }
