@@ -61,8 +61,7 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        // Create a new book in the database
-        const deleted = await Session.destroy({ where: { id: req.params.id } });
+        await Session.destroy({ where: { id: req.params.id } });
         res.sendStatus(204);
     } catch(error) {
         res.status(500).send(error)
