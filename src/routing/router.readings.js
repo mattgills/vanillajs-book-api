@@ -65,7 +65,7 @@ router.post('/', async (req, res) => {
         // Create a new book in the database
         const newReading = await Reading.create(req.body);
 
-        res.send(newReading);
+        res.status(201).send(newReading);
     } catch(error) {
         console.log(error)
         res.status(500).send(error)

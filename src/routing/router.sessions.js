@@ -38,7 +38,7 @@ router.post('/', async (req, res) => {
         // Create a new book in the database
         const newSession = await Session.create(req.body);
 
-        res.send(newSession);
+        res.status(201).send(newSession);
     } catch(error) {
         console.log(error)
         res.status(500).send(error)

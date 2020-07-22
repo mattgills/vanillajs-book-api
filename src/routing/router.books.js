@@ -49,7 +49,7 @@ router.post('/', async (req, res) => {
         // Create a new book in the database
         const newBook = await Book.create(req.body);
 
-        res.send(newBook);
+        res.status(201).send(newBook);
     } catch(error) {
         res.status(500).send(error)
     }
