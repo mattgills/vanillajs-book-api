@@ -20,7 +20,7 @@ async function encryptPasswordIfChanged(user, options) {
 const Reading = sequelize.define('reading', require('./models/reading.js'), { timestamps: false, tableName: 'reading' });
 
 // Define Session
-const Session = sequelize.define('session', require('./models/session.js'), { timestamps: false, tableName: 'session' });0
+const Session = sequelize.define('session', require('./models/session.js'), { timestamps: false, tableName: 'session' });
 
 // Define Associations
 Book.hasMany(Reading, { foreignKey: 'bookId' });
