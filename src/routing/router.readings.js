@@ -4,10 +4,28 @@ const { sequelize, Book, Reading, Session } = require('../database/sequelize.con
 
 router.get('/', async (req, res, next) => {
     try {
+        // Set size and page based on query filter
+        let size = req.query.size ? req.query.size : 10;
+        let pageNumber = req.query.page ? req.query.page: 1;
+
         // Retrieve books from database
-        let readings = await Reading.findAll();
+        let readings = await Reading.findAll({
+            limit: size,
+            offset: Math.floor(size * (pageNumber - 1))
+        });
+
+        // Retrieve count of readings from database
+        const count = await Reading.count();
         
-        res.locals.body = { data: readings };
+        res.locals.body = {
+            data: readings,
+            page: {
+                size,
+                totalElements: count,
+                totalPages: Math.ceil(count / size),
+                number: pageNumber
+            }
+        };
         next();
     } catch(error) {
         res.status(500).send('oops something went wrong')
@@ -25,15 +43,39 @@ router.get('/books', async (req, res, next) => {
 
         // const books = readings.map(reading => reading.book);
 
-        const result = await sequelize.query('SELECT DISTINCT ON ("reading"."bookId") book.id, book.title, book.authors, book.isbn, book.isbn13, book.publisher, book.edition, book.length, book.media FROM "reading" "reading" INNER JOIN "book" "book" ON "book"."id"="reading"."bookId"')
+        // Set size and page based on query filter
+        let size = req.query.size ? req.query.size : 10;
+        let pageNumber = req.query.page ? req.query.page: 1;
 
-        const books = result[0];
+        const result = await sequelize.query(
+            `SELECT DISTINCT ON ("reading"."bookId") book.id, book.title, book.authors, book.isbn, book.isbn13, book.publisher, book.edition, book.length, book.media FROM "reading"
+            "reading" INNER JOIN "book" "book" ON "book"."id"="reading"."bookId"
+            LIMIT ${size} OFFSET ${Math.floor(size * (pageNumber - 1))}`);
 
-        books.forEach(book => {
-            book.authors = convertAuthorsStringToArray(book.authors);
+        let books = result[0];
+
+        let count = await sequelize.query(
+            `SELECT COUNT (DISTINCT ("reading"."bookId")) FROM "reading"
+            "reading" INNER JOIN "book" "book" ON "book"."id"="reading"."bookId"
+            LIMIT ${size} OFFSET ${Math.floor(size * (pageNumber - 1))}`);
+
+        count = count[0][0].count;
+
+        books = books.map(book => {
+            book = Book.build(book);
+            book.convertAuthorsStringToArray();
+            return book;
         });
 
-        res.locals.body = { data: books };
+        res.locals.body = {
+            data: books,
+            page: {
+                size,
+                totalElements: count,
+                totalPages: Math.ceil(count / size),
+                number: pageNumber
+            }
+        };
         next();
     } catch(error) {
         console.error(error)
@@ -57,7 +99,7 @@ router.get('/:id([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
     try {
         // Remove user set id if it exists
         if (req.body.id) delete req.body.id;
@@ -65,7 +107,9 @@ router.post('/', async (req, res) => {
         // Create a new book in the database
         const newReading = await Reading.create(req.body);
 
-        res.status(201).send(newReading);
+        res.locals.body = { data: newReading };
+        
+        next();
     } catch(error) {
         console.log(error)
         res.status(500).send(error)
@@ -98,18 +142,39 @@ router.delete('/:id', async (req, res) => {
 
 router.get('/:id/sessions', async (req, res, next) => {
     try {
-        // Retrieve single book from database
-        const sessions = await Session.findAll({ where: { readingId: req.params.id } });
+        // Set size and page based on query filter
+        let size = req.query.size ? req.query.size : 10;
+        let pageNumber = req.query.page ? req.query.page: 1;
 
-        res.locals.body = { data: sessions };
+        // Retrieve single book from database
+        const sessions = await Session.findAll({
+            limit: size,
+            offset: Math.floor(size * (pageNumber - 1)),
+            where: {
+                readingId: req.params.id
+            }
+        });
+
+        // Retrieve count of sessions from database
+        const count = await Session.count({
+            where: {
+                readingId: req.params.id
+            }
+        });
+
+        res.locals.body = {
+            data: sessions,
+            page: {
+                size,
+                totalElements: count,
+                totalPages: Math.ceil(count / size),
+                number: pageNumber
+            }
+        };
         next();
     } catch(error) {
         res.status(500).send(error)
     }
 });
-
-function convertAuthorsStringToArray(authors) {
-    return authors.split(',');
-}
 
 module.exports = router;

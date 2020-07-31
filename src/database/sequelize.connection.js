@@ -5,7 +5,20 @@ const sequelize = new Sequelize('postgres://postgres:password@localhost:5432/boo
 // Define Book
 const Book = sequelize.define('book', require('./models/book.js'), { timestamps: false, tableName: 'book' });
 
-// Define User and Additional Hooks
+Book.prototype.convertAuthorsStringToArray = function() {
+    this.authors = this.authors.split(',');
+}
+
+Book.beforeValidate(convertAuthorsArrayToString);
+
+function convertAuthorsArrayToString(book, options) {
+    if (Array.isArray(book.authors)) {
+        book.authors = book.authors.join(',');
+    } else {
+        throw new Error('Authors must be in the format of an array.');
+    }
+};
+
 const User = sequelize.define('user', require('./models/user.js'), { timestamps: false, tableName: 'user' });
 User.beforeCreate(encryptPasswordIfChanged);
 User.beforeUpdate(encryptPasswordIfChanged);
