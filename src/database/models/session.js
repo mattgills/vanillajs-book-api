@@ -16,6 +16,6 @@ module.exports = {
     },
     notes: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: true
     }
 }
